@@ -1,0 +1,99 @@
+# Workflow Status Template
+
+# This tracks progress through BMM methodology Analysis, Planning, and Solutioning phases.
+# Implementation phase is tracked separately in sprint-status.yaml
+
+# STATUS DEFINITIONS:
+# ==================
+# Initial Status (before completion):
+#   - required: Must be completed to progress
+#   - optional: Can be completed but not required
+#   - recommended: Strongly suggested but not required
+#   - conditional: Required only if certain conditions met (e.g., if_has_ui)
+#
+# Completion Status:
+#   - {file-path}: File created/found (e.g., "docs/product-brief.md")
+#   - skipped: Optional/conditional workflow that was skipped
+
+generated: "2026-01-02T18:44:06Z"
+project: "selinium"
+project_type: "new"
+selected_track: "BMad Method"
+field_type: "greenfield"
+workflow_path: "_bmad/bmm/workflows/workflow-status/paths/method-greenfield.yaml"
+workflow_status:
+  # Phase 1: Analysis (Optional)
+  - id: "brainstorm-project"
+    phase: 1
+    status: "required"
+    agent: "analyst"
+    command: "/bmad:bmm:workflows:brainstorming"
+    note: "Uses core brainstorming workflow with project context template"
+
+  - id: "research"
+    phase: 1
+    status: "required"
+    agent: "analyst"
+    command: "/bmad:bmm:workflows:research"
+    note: "Can have multiple research workflows"
+
+  - id: "product-brief"
+    phase: 1
+    status: "required"
+    agent: "analyst"
+    command: "/bmad:bmm:workflows:create-product-brief"
+    note: "Recommended for greenfield Method projects"
+
+  # Phase 2: Planning
+  - id: "prd"
+    phase: 2
+    status: "required"
+    agent: "pm"
+    command: "/bmad:bmm:workflows:create-prd"
+    output: "Product Requirements Document with FRs and NFRs"
+
+  - id: "create-ux-design"
+    phase: 2
+    status: "conditional"
+    agent: "ux-designer"
+    command: "/bmad:bmm:workflows:create-ux-design"
+    note: "Determined after PRD - user/agent decides if needed"
+
+  # Phase 3: Solutioning
+  - id: "create-architecture"
+    phase: 3
+    status: "required"
+    agent: "architect"
+    command: "/bmad:bmm:workflows:create-architecture"
+    output: "System architecture document"
+    note: "Complete system design for greenfield projects"
+
+  - id: "create-epics-and-stories"
+    phase: 3
+    status: "required"
+    agent: "pm"
+    command: "/bmad:bmm:workflows:create-epics-and-stories"
+    note: "Required: Break down PRD into implementable epics and stories with full context (PRD + UX + Architecture)"
+
+  - id: "test-design"
+    phase: 3
+    status: "optional"
+    agent: "tea"
+    command: "/bmad:bmm:workflows:test-design"
+    output: "System-level testability review"
+    note: "Testability assessment before gate check - auto-detects system-level mode"
+
+  - id: "implementation-readiness"
+    phase: 3
+    status: "required"
+    agent: "architect"
+    command: "/bmad:bmm:workflows:implementation-readiness"
+    note: "Validates PRD + Architecture + Epics + UX (optional)"
+
+  # Phase 4: Implementation
+  - id: "sprint-planning"
+    phase: 4
+    status: "required"
+    agent: "sm"
+    command: "/bmad:bmm:workflows:sprint-planning"
+    note: "Creates sprint plan - subsequent work tracked there"

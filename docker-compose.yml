@@ -1,0 +1,103 @@
+version: '3.8'
+
+services:
+  stealthscrape-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: stealthscrape-app
+    ports:
+      - "8000:8000"
+    environment:
+      - STEALTHSCRAPE_ENV=production
+      - PORT=8000
+      - HOST=0.0.0.0
+      - DISPLAY=:99
+      - SELENIUM_HEADLESS=false
+      - UC_MODE=true
+      - CDP_MODE=true
+      - STEALTH_LEVEL=maximum
+    volumes:
+      - ./scraped_data:/app/scraped_data
+      - ./logs:/app/logs
+    networks:
+      - stealthscrape-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  redis:
+    image: redis:7-alpine
+    container_name: stealthscrape-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - stealthscrape-network
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: stealthscrape-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=stealthscrape
+      - POSTGRES_PASSWORD=stealthscrape_password
+      - POSTGRES_DB=stealthscrape
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - stealthscrape-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U stealthscrape"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: stealthscrape-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    networks:
+      - stealthscrape-network
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: stealthscrape-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana_data:/var/lib/grafana
+    networks:
+      - stealthscrape-network
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+
+networks:
+  stealthscrape-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:
+  prometheus_data:
+  grafana_data:
