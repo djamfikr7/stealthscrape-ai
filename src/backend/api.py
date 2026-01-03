@@ -1,6 +1,6 @@
 """
 StealthScrape API Server
-FastAPI-based REST API for the web scraping platform
+FastAPI-based REST API for web scraping platform
 """
 
 from fastapi import FastAPI, HTTPException, BackgroundTasks
@@ -23,7 +23,7 @@ app = FastAPI(
 # Mount static files directory
 app.mount("/static", StaticFiles(directory=os.path.join(os.path.dirname(__file__), "../frontend")), name="static")
 
-# Initialize the scraping engine
+# Initialize scraping engine
 engine = StealthScrapeEngine()
 
 
@@ -61,7 +61,7 @@ class SessionStatus(BaseModel):
 
 @app.get("/")
 async def root():
-    """Serve the frontend application"""
+    """Serve frontend application"""
     frontend_path = os.path.join(os.path.dirname(__file__), "../frontend/index.html")
     return FileResponse(frontend_path)
 
@@ -171,7 +171,7 @@ async def scrape_twitter(request: ScrapeTwitterRequest, background_tasks: Backgr
 
 @app.get("/api/session/{session_id}", response_model=SessionStatus)
 async def get_session_status(session_id: str):
-    """Get the status of a scraping session"""
+    """Get status of a scraping session"""
     status = engine.get_session_status(session_id)
     
     if "error" in status:
@@ -191,10 +191,9 @@ async def get_dashboard():
     """Get dashboard statistics"""
     return engine.get_dashboard_stats()
 
-
 @app.get("/api/results/{session_id}")
 async def get_session_results(session_id: str):
-    """Get the results of a completed scraping session"""
+    """Get results of a completed scraping session"""
     # In a real implementation, this would retrieve stored results
     # For now, we'll simulate a response
     session = engine.get_session_status(session_id)
